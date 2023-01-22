@@ -1,0 +1,21 @@
+<head>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+
+  <script src="//unpkg.com/3d-force-graph"></script>
+</head>
+
+<body>
+  <div id="3d-graph" style="width: 50%"></div>
+
+  <script>
+    (async function () {
+      const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
+        .jsonUrl('graph_data.json')
+        .width((2 * window.innerWidth) / 3);
+    })();
+  </script>
+</body>
