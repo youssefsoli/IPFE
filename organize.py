@@ -36,7 +36,8 @@ if __name__ == "__main__":
             file_types[type] = max_group_id
 
         node['group'] = file_types[type]
-        node['val'] = int(size.split(' ')[0]) // 1_000_000_000
+        node['type'] = type
+        node['val'] = math.log10(int(size.split(' ')[0]))
         node['size'] = int(size.split(' ')[0])
 
     for node in deletion_queue:
