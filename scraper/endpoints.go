@@ -7,4 +7,5 @@ var (
 	EndpointMinerDeals  = func(minerAddr string) string { return EndpointAllMiners + "deals/" + minerAddr }
 	EndpointByCID       = func(CID string) string { return EndpointPublic + "by-cid/" + CID }
 	EndpointContentData = func(CID string) string { return "https://" + CID + ".ipfs.dweb.link/" }
+	EndpointsDirCID     = func(CID string) string { return EndpointAPI + "gw/ipfs/" + CID }
 )
