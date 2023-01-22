@@ -1,0 +1,56 @@
+\documentclass{article}
+
+\usepackage{enumitem}
+\usepackage{fontawesome}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{marvosym}
+\usepackage{titlesec}
+\usepackage{titling}
+\usepackage{setspace}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+%%%%%%%%%%%%%%%
+% DEFINITIONS %
+%%%%%%%%%%%%%%%
+
+\onehalfspacing
+
+%%%%%%%%%%%
+% CONTENT %
+%%%%%%%%%%%
+
+\begin{document}
+
+\title{Summary of the Mathematics of the Project}
+\author{Arnav, Hussein, Youssef, Michael}
+
+\maketitle
+
+\section{Overview of the Project}
+
+Using a Golang script to fetch the headers of files that were important, we created a database of files in the InterPlanetary File System offered by Estuary.
+These summaries are then fed into a Cohere embed model that returns a 4096 feature vector embedding of each file.
+In this embedding scheme, vectors that have a lower magnitude of difference are closer to each other and share greater similarities.
+To the end of identifying and visualizing the similar documents, feature reduction was implemented to condense the features down to 3 features with as little information loss as possible.
+Following this, the generated data points 
+
+\section{Feature Reduction}
+
+The method used to do feature reduction is Principal Component Analysis.
+The large dataset of multiple variables first undergoes a change of coordinate basis to a basis where three of the vectors are the principal components of the dataset, which is to say that there is the greatest variation of data encapsulated in those dimensions.
+The new coordinates for an arbitrary vector after the feature reduction is simply the component of the vector along each of the principal components.
+
+This is equivalent to interpreting the new vector as a projection of the multidimensional vector space onto the space that contains the 3 principal components. 
+
+\section{Clustering}
+
+Clustering the new points in $\mathbb{R}^3$ was achieved by using a kNN algorithm where k was 2.
+Using the kNN to cluster points that were nearby in the 3D space meant that the only files that are connected are those that are similar in content.
+Then, files are expressed as nodes of a graph with edges between other nodes (files) if they are related.
+A force simulation is then applied, allowing the user to visually explore the data structure while maintaining the proximity and connections of clusters of nodes.
+
+\end{document}
