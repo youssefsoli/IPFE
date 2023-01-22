@@ -51,6 +51,14 @@
     const req = await fetch('graph_data.json');
     const graphData = await req.json();
 
+    const typeToColor = {};
+    //Define GUI
+    const Settings = function () {
+      this.maximumSize = 15;
+    };
+
+    const settings = new Settings();
+
     const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
       .graphData(graphData)
       .nodeAutoColorBy('group')
@@ -92,23 +100,29 @@
               <br>
               File type: ${parts[parts.length - 1].split(': ')[1]}
               </div></div><br>Click on node to download</section>`;
+      })
+      .onEngineTick(() => {
+        if (!Object.values(typeToColor)[0]) {
+          const gui = new dat.GUI();
+
+          const controllerOne = gui.add(settings, 'maximumSize', 0, 15);
+
+          const fileTypeFolder = gui.addFolder('File Types');
+
+          for (const node of Graph.graphData().nodes) {
+            typeToColor[node.type] = node.color;
+          }
+
+          for (const type of types) {
+            settings[type] = true;
+            const m = fileTypeFolder.add(settings, type).onChange(filterGraph);
+            console.log(m);
+          }
+
+          controllerOne.onChange(filterGraph);
+          fileTypeFolder.open();
+        }
       });
-
-    let originalGraphData = null;
-
-    //Define GUI
-    const Settings = function () {
-      this.maximumSize = 15;
-    };
-
-    const settings = new Settings();
-    const gui = new dat.GUI();
-
-    const controllerOne = gui.add(settings, 'maximumSize', 0, 15);
-
-    const fileTypeFolder = gui.addFolder('File Types');
-
-    controllerOne.onChange(filterGraph);
 
     const stringData = JSON.stringify(graphData);
 
@@ -117,13 +131,6 @@
     for (const node of graphData.nodes) {
       types.add(node.type);
     }
-
-    for (const type of types) {
-      settings[type] = true;
-      fileTypeFolder.add(settings, type).onChange(filterGraph);
-    }
-
-    fileTypeFolder.open();
 
     function filterGraph() {
       let { nodes, links } = JSON.parse(stringData);
