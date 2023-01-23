@@ -1,15 +1,33 @@
 <head>
-  <link rel="apple-touch-icon" sizes="180x180" href="/meta/apple-touch-icon.png?v=1">
-  <link rel="icon" type="image/png" sizes="32x32" href="/meta/favicon-32x32.png?v=1">
-  <link rel="icon" type="image/png" sizes="16x16" href="/meta/favicon-16x16.png?v=1">
-  <link rel="manifest" href="/meta/site.webmanifest?v=1">
-  <link rel="mask-icon" href="/meta/safari-pinned-tab.svg?v=1" color="#5bbad5">
-  <link rel="shortcut icon" href="/meta/favicon.ico?v=1">
-  <meta name="apple-mobile-web-app-title" content="IPFE">
-  <meta name="application-name" content="IPFE">
-  <meta name="msapplication-TileColor" content="#000010">
-  <meta name="msapplication-config" content="/meta/browserconfig.xml?v=1">
-  <meta name="theme-color" content="#000010">
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="/meta/apple-touch-icon.png?v=1"
+  />
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="/meta/favicon-32x32.png?v=1"
+  />
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="/meta/favicon-16x16.png?v=1"
+  />
+  <link rel="manifest" href="/meta/site.webmanifest?v=1" />
+  <link
+    rel="mask-icon"
+    href="/meta/safari-pinned-tab.svg?v=1"
+    color="#5bbad5"
+  />
+  <link rel="shortcut icon" href="/meta/favicon.ico?v=1" />
+  <meta name="apple-mobile-web-app-title" content="IPFE" />
+  <meta name="application-name" content="IPFE" />
+  <meta name="msapplication-TileColor" content="#000010" />
+  <meta name="msapplication-config" content="/meta/browserconfig.xml?v=1" />
+  <meta name="theme-color" content="#000010" />
   <title>IPFE: InterPlanetary File Explorer</title>
 
   <style>
@@ -79,7 +97,7 @@
       .nodeAutoColorBy('group')
       .linkWidth(2)
       .onNodeClick(nodeClicked)
-      .onNodeRightClick(node => {
+      .onNodeRightClick((node) => {
         // Aim at node from outside it
         const distance = 40;
         const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
@@ -87,10 +105,10 @@
         const newPos =
           node.x || node.y || node.z
             ? {
-              x: node.x * distRatio,
-              y: node.y * distRatio,
-              z: node.z * distRatio,
-            }
+                x: node.x * distRatio,
+                y: node.y * distRatio,
+                z: node.z * distRatio,
+              }
             : { x: 0, y: 0, z: distance }; // special case if node is in (0,0,0)
 
         Graph.cameraPosition(
@@ -99,7 +117,7 @@
           3000 // ms transition duration
         );
       })
-      .nodeLabel(node => {
+      .nodeLabel((node) => {
         let parts = node.name.split(', ');
         const fileSize = humanFileSize(
           parseInt(parts[parts.length - 2].split(': ')[1].split(' ')[0])
@@ -150,9 +168,11 @@
     function filterGraph() {
       let { nodes, links } = JSON.parse(stringData);
 
-      const removeNode = node => {
-        links = links.filter(l => l.source !== node.id && l.target !== node.id); // Remove links attached to node
-        nodes = nodes.filter(n => node.id != n.id); // Remove node
+      const removeNode = (node) => {
+        links = links.filter(
+          (l) => l.source !== node.id && l.target !== node.id
+        ); // Remove links attached to node
+        nodes = nodes.filter((n) => node.id != n.id); // Remove node
       };
 
       for (const node of nodes) {

@@ -5,17 +5,17 @@ buckets = {}
 s = "File hash: {}\nFile name: {}\nFile size: {} bytes\nFile type: {}\n"
 
 cur = {
-        "File hash": "",
-        "File name": "",
-        "File size": "",
-        "File type": ""
-        }
+    "File hash": "",
+    "File name": "",
+    "File size": "",
+    "File type": ""
+}
 
 f = open("new.txt", "r")
 for line in f:
     if line.startswith("---"):
         continue
-    
+
     line = line.split(":", 1)
     key = line[0]
     val = line[1][:-1]

@@ -68,4 +68,3 @@ if __name__ == "__main__":
 
     with open("graph_data.json", "w") as f:
         json.dump(json_data, f)
-
