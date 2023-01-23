@@ -2,6 +2,8 @@
 
 A 3D explorer of NLP-aggregated interconnected planetary files. Navigate the universe of distributed data by exploring connections between them.
 
+[Try it out!](https://ipfe.elguindi.xyz/)
+
 ### What does it do?
 
 This project visualizes the vast quantities of data stored on the InterPlanetary File System using an intuitive 3D graph. Connected nodes are nearby and have similar content; all nodes are colour-coded based on their file type, with larger nodes representing larger files. Hovering over a node gives more information about the file and clicking on the node downloads the file.
