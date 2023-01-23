@@ -1,34 +1,172 @@
 <head>
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" href="/images/favicon.ico?" type="image/x-icon">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/site.webmanifest">
-  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-  <meta name="msapplication-TileColor" content="#2b5797">
-  <meta name="theme-color" content="#ffffff">
+  <link rel="apple-touch-icon" sizes="180x180" href="/meta/apple-touch-icon.png?v=1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/meta/favicon-32x32.png?v=1">
+  <link rel="icon" type="image/png" sizes="16x16" href="/meta/favicon-16x16.png?v=1">
+  <link rel="manifest" href="/meta/site.webmanifest?v=1">
+  <link rel="mask-icon" href="/meta/safari-pinned-tab.svg?v=1" color="#5bbad5">
+  <link rel="shortcut icon" href="/meta/favicon.ico?v=1">
+  <meta name="apple-mobile-web-app-title" content="IPFE">
+  <meta name="application-name" content="IPFE">
+  <meta name="msapplication-TileColor" content="#000010">
+  <meta name="msapplication-config" content="/meta/browserconfig.xml?v=1">
+  <meta name="theme-color" content="#000010">
   <title>IPFE</title>
-
-  <script src="//unpkg.com/3d-force-graph"></script>
 
   <style>
     body {
       margin: 0;
     }
+
+    .container {
+      /* text-align: center; */
+      background-color: azure;
+      color: grey;
+      border-color: darkgray;
+      border-width: 2px;
+      border-style: solid;
+      padding: 10px;
+      padding-top: 5px;
+      font-family: monospace;
+      /* margin: auto; */
+    }
+
+    .logo {
+      position: absolute;
+      left: 30px;
+      bottom: 10px;
+      z-index: 999;
+      opacity: 0.5;
+    }
   </style>
+
+  <script src="//unpkg.com/3d-force-graph"></script>
+  <script src="//unpkg.com/dat.gui"></script>
 </head>
 
 <body>
-  <div id="3d-graph"></div>
+  <img src="IPFE.png" alt="logo" width="150" height="150" class="logo" />
+  <div id="3d-graph" style="width: 50%"></div>
 
-  <script>
-    (async function () {
-      const req = await fetch('graph_data.json');
-      const graphData = await req.json();
+  <script type="module">
+    const nodeClicked = (node, event) => {
+      window
+        .open(`https://api.estuary.tech/gw/ipfs/${node.hash}`, '_blank')
+        .focus();
+    };
 
-      const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
-        .graphData(graphData)
-        .width((2 * window.innerWidth) / 3);
-    })();
+    function humanFileSize(size) {
+      var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+      return (
+        (size / Math.pow(1024, i)).toFixed(2) * 1 +
+        ' ' +
+        ['B', 'kB', 'MB', 'GB', 'TB'][i]
+      );
+    }
+
+    const req = await fetch('graph_data.json');
+    const graphData = await req.json();
+
+    const typeToColor = {};
+    //Define GUI
+    const Settings = function () {
+      this.maximumSize = 15;
+    };
+
+    const settings = new Settings();
+
+    const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
+      .graphData(graphData)
+      .nodeAutoColorBy('group')
+      .linkWidth(2)
+      .onNodeClick(nodeClicked)
+      .onNodeRightClick(node => {
+        // Aim at node from outside it
+        const distance = 40;
+        const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+
+        const newPos =
+          node.x || node.y || node.z
+            ? {
+              x: node.x * distRatio,
+              y: node.y * distRatio,
+              z: node.z * distRatio,
+            }
+            : { x: 0, y: 0, z: distance }; // special case if node is in (0,0,0)
+
+        Graph.cameraPosition(
+          newPos, // new position
+          node, // lookAt ({ x, y, z })
+          3000 // ms transition duration
+        );
+      })
+      .nodeLabel(node => {
+        let parts = node.name.split(', ');
+        const fileSize = humanFileSize(
+          parseInt(parts[parts.length - 2].split(': ')[1].split(' ')[0])
+        );
+        return `<section class="container">
+            <div style="display: flex">
+            <div class="one">
+              File name: ${parts[0].split(': ')[1]}
+              <br>
+              Upload date: ${parts[parts.length - 3].split(': ')[1]}
+              <br>
+              File size: ${fileSize}
+              <br>
+              File type: ${parts[parts.length - 1].split(': ')[1]}
+              </div></div><br>Click on node to download</section>`;
+      })
+      .onEngineTick(() => {
+        if (!Object.values(typeToColor)[0]) {
+          const gui = new dat.GUI();
+
+          const controllerOne = gui.add(settings, 'maximumSize', 0, 15);
+
+          const fileTypeFolder = gui.addFolder('File Types');
+
+          for (const node of Graph.graphData().nodes) {
+            typeToColor[node.type] = node.color;
+          }
+
+          for (const type of types) {
+            settings[type] = true;
+            const m = fileTypeFolder.add(settings, type).onChange(filterGraph);
+            console.log(m);
+          }
+
+          controllerOne.onChange(filterGraph);
+          fileTypeFolder.open();
+        }
+      });
+
+    const stringData = JSON.stringify(graphData);
+
+    const types = new Set();
+
+    for (const node of graphData.nodes) {
+      types.add(node.type);
+    }
+
+    function filterGraph() {
+      let { nodes, links } = JSON.parse(stringData);
+
+      const removeNode = node => {
+        links = links.filter(l => l.source !== node.id && l.target !== node.id); // Remove links attached to node
+        nodes = nodes.filter(n => node.id != n.id); // Remove node
+      };
+
+      for (const node of nodes) {
+        if (node.size > Math.pow(10, settings.maximumSize)) {
+          removeNode(node);
+        }
+
+        for (const type of types) {
+          if (!settings[type] && node.type == type) {
+            removeNode(node);
+          }
+        }
+      }
+      Graph.graphData({ nodes, links });
+    }
   </script>
 </body>

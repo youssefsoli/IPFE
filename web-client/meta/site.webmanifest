@@ -1,0 +1,20 @@
+{
+    "name": "IPFE",
+    "short_name": "IPFE",
+    "icons": [
+        {
+            "src": "/meta/android-chrome-192x192.png?v=1",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/meta/android-chrome-512x512.png?v=1",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#000010",
+    "background_color": "#000010",
+    "start_url": "https://ipfe.elguindi.xyz",
+    "display": "standalone"
+}
