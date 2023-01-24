@@ -3,7 +3,9 @@
   <head>
     <script src="//unpkg.com/3d-force-graph"></script>
     <script src="//unpkg.com/dat.gui"></script>
-  
+
+    <meta charset="UTF-8" />
+
     <link rel="apple-touch-icon" sizes="180x180" href="https://ipfe.elguindi.xyz/meta/apple-touch-icon.png?v=1" />
     <link rel="icon" type="image/png" sizes="32x32" href="https://ipfe.elguindi.xyz/meta/favicon-32x32.png?v=1" />
     <link rel="icon" type="image/png" sizes="16x16" href="https://ipfe.elguindi.xyz/meta/favicon-16x16.png?v=1" />
@@ -15,7 +17,7 @@
     <meta name="msapplication-TileColor" content="#000010" />
     <meta name="msapplication-config" content="https://ipfe.elguindi.xyz/meta/browserconfig.xml?v=1" />
     <meta name="theme-color" content="#000010" />
-  
+
     <meta property="og:title" content="IPFE: InterPlanetary File Explorer" />
     <meta property="og:site_name" content="IPFE" />
     <meta property="og:url" content="https://ipfe.elguindi.xyz" />
@@ -30,23 +32,22 @@
     <meta property="og:image:height" content="1000" />
     <meta property="og:image:alt" content="IPFE: InterPlanetary File Explorer" />
     <meta property="og:image:type" content="image/png" />
-  
+
     <title>IPFE: InterPlanetary File Explorer</title>
-    <meta charset="UTF-8">
     <meta
       name="description"
       content="Explore the universe of distributed data in 3D – vizualize the connections between them."
     />
-  
+
     <link
       rel="search"
       type="application/opensearchdescription+xml"
       href="/opensearch.xml"
       title="IPFE: InterPlanetary File Explorer"
     />
-  
+
     <meta name="robots" content="max-image-preview:large" />
-  
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="IPFE: InterPlanetary File Explorer" />
     <meta
@@ -54,15 +55,14 @@
       content="Explore the universe of distributed data in 3D – vizualize the connections between them."
     />
     <meta name="twitter:image" content="https://ipfe.elguindi.xyz/images/IPFE_banner.png" />
-  
+
     <style>
       body {
         margin: 0;
         background-color: #000010;
       }
-  
+
       .container {
-        /* text-align: center; */
         background-color: azure;
         color: grey;
         border-color: darkgray;
@@ -71,9 +71,33 @@
         padding: 10px;
         padding-top: 5px;
         font-family: monospace;
-        /* margin: auto; */
+        max-width: 600px;
       }
-  
+
+      .file-title {
+        margin: 0;
+        font-weight: bold;
+        font-size: larger;
+        overflow-wrap: break-word;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: min-content auto;
+        column-gap: 10px;
+        row-gap: 5px;
+        margin-top: 10px;
+        margin-left: 20px;
+      }
+
+      .file-info-key {
+        text-align: right;
+      }
+
+      .file-info-value {
+        text-align: left;
+      }
+
       .logo {
         position: absolute;
         left: 20px;
@@ -82,7 +106,7 @@
         opacity: 0.5;
         cursor: pointer;
       }
-  
+
       .github {
         position: absolute;
         right: 20px;
@@ -92,35 +116,35 @@
       }
     </style>
   </head>
-  
+
   <body>
     <img src="images/IPFE_logo.png" alt="logo" width="100" class="logo" />
     <a href="https://github.com/youssefsoli/IPFE" target="_blank">
       <img src="images/github_logo.png" alt="github" width="30" class="github" draggable="false" />
     </a>
-    <div id="3d-graph" style="width: 50%"></div>
-  
+    <div id="3d-graph"></div>
+
     <script type="module">
       const nodeClicked = (node, event) => {
         window.open(`https://api.estuary.tech/gw/ipfs/${node.hash}`, '_blank').focus();
       };
-  
+
       function humanFileSize(size) {
         var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
         return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
       }
-  
+
       const req = await fetch('graph_data.json');
       const graphData = await req.json();
-  
+
       const typeToColor = {};
       //Define GUI
       const Settings = function () {
         this.maximumSize = 15;
       };
-  
+
       const settings = new Settings();
-  
+
       const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
         .graphData(graphData)
         .nodeAutoColorBy('group')
@@ -130,7 +154,7 @@
           // Aim at node from outside it
           const distance = 40;
           const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
-  
+
           const newPos =
             node.x || node.y || node.z
               ? {
@@ -139,7 +163,7 @@
                   z: node.z * distRatio,
                 }
               : { x: 0, y: 0, z: distance }; // special case if node is in (0,0,0)
-  
+
           Graph.cameraPosition(
             newPos, // new position
             node, // lookAt ({ x, y, z })
@@ -148,62 +172,76 @@
         })
         .nodeLabel((node) => {
           let parts = node.name.split(', ');
+          const fileType = parts[parts.length - 1].split(': ')[1];
           const fileSize = humanFileSize(parseInt(parts[parts.length - 2].split(': ')[1].split(' ')[0]));
-          return `<section class="container">
-              <div style="display: flex">
-              <div class="one">
-                File name: ${parts[0].split(': ')[1]}
-                <br>
-                Upload date: ${parts[parts.length - 3].split(': ')[1]}
-                <br>
-                File size: ${fileSize}
-                <br>
-                File type: ${parts[parts.length - 1].split(': ')[1]}
-                </div></div><br>Click on node to download</section>`;
+          const dateStringOptions = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          };
+          const dateString = new Date(
+            parts[parts.length - 3].split(': ')[1].replace(' ', 'T').replace(' ', '').slice(0, -4)
+          ).toLocaleString('en-us', dateStringOptions);
+          return `
+        <div class="container">
+          <p class="file-title">${parts[0].split(': ')[1]}</p>
+          <div class="grid-container">
+            <div class="file-info-key">Kind:</div>
+            <div class="file-info-value">${fileType}</div>
+            <div class="file-info-key">Size:</div>
+            <div class="file-info-value">${fileSize}</div>
+            <div class="file-info-key">Uploaded:</div>
+            <div class="file-info-value">${dateString}</div>
+          </div>
+          <br />
+          <i>Click on node to download</i>
+        </div>
+        `;
         })
         .onEngineTick(() => {
           if (!Object.values(typeToColor)[0]) {
             const gui = new dat.GUI();
-  
+
             const controllerOne = gui.add(settings, 'maximumSize', 0, 15);
-  
+
             const fileTypeFolder = gui.addFolder('File Types');
-  
+
             for (const node of Graph.graphData().nodes) {
               typeToColor[node.type] = node.color;
             }
-  
-            for (const type of types) {
-              settings[type] = true;
-              const m = fileTypeFolder.add(settings, type).onChange(filterGraph);
-            }
-  
+
+            // for (const type of types) {
+            //   settings[type] = true;
+            //   const m = fileTypeFolder.add(settings, type).onChange(filterGraph);
+            //   console.log(m);
+            // }
+
             controllerOne.onChange(filterGraph);
             fileTypeFolder.open();
           }
         });
-  
+
       const stringData = JSON.stringify(graphData);
-  
+
       const types = new Set();
-  
+
       for (const node of graphData.nodes) {
         types.add(node.type);
       }
-  
+
       function filterGraph() {
         let { nodes, links } = JSON.parse(stringData);
-  
+
         const removeNode = (node) => {
           links = links.filter((l) => l.source !== node.id && l.target !== node.id); // Remove links attached to node
           nodes = nodes.filter((n) => node.id != n.id); // Remove node
         };
-  
+
         for (const node of nodes) {
           if (node.size > Math.pow(10, settings.maximumSize)) {
             removeNode(node);
           }
-  
+
           for (const type of types) {
             if (!settings[type] && node.type == type) {
               removeNode(node);
@@ -212,7 +250,7 @@
         }
         Graph.graphData({ nodes, links });
       }
-  
+
       const shareButton = document.querySelector('.logo');
       shareButton.addEventListener('click', async (event) => {
         navigator.share({ url: 'https://ipfe.elguindi.xyz' }).catch(console.error);
