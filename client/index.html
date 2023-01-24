@@ -91,9 +91,7 @@
 </head>
 
 <body>
-  <button>
-    <img src="images/IPFE_logo.png" alt="logo" width="100" class="logo" />
-  </button>
+  <img src="images/IPFE_logo.png" alt="logo" width="100" class="logo" />
   <a href="https://github.com/youssefsoli/IPFE" target="_blank">
     <img src="images/github_logo.png" alt="github" width="30" class="github" draggable="false" />
   </a>
@@ -215,7 +213,7 @@
 
     const shareButton = document.querySelector('.logo');
     shareButton.addEventListener('click', async (event) => {
-      navigator.share({ url: 'https://ipfe.elguindi.xyz' }).catch(console.error);
+      navigator.share({ url: 'http://localhost:5500/index.html' }).catch(console.error);
     });
   </script>
 </body>
