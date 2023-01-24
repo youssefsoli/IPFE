@@ -220,7 +220,8 @@
               typeToColor[node.type] = node.color;
             }
 
-            for (const type of types) {
+            const sortedTypes = Array.from(types).sort();
+            for (const type of sortedTypes) {
               settings[type] = true;
               const m = fileTypeFolder.add(settings, type).onChange(filterGraph);
               //   console.log(m);
