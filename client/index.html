@@ -1,38 +1,61 @@
 <head>
-  <link
-    rel="apple-touch-icon"
-    sizes="180x180"
-    href="/meta/apple-touch-icon.png?v=1"
-  />
-  <link
-    rel="icon"
-    type="image/png"
-    sizes="32x32"
-    href="/meta/favicon-32x32.png?v=1"
-  />
-  <link
-    rel="icon"
-    type="image/png"
-    sizes="16x16"
-    href="/meta/favicon-16x16.png?v=1"
-  />
-  <link rel="manifest" href="/meta/site.webmanifest?v=1" />
-  <link
-    rel="mask-icon"
-    href="/meta/safari-pinned-tab.svg?v=1"
-    color="#5bbad5"
-  />
-  <link rel="shortcut icon" href="/meta/favicon.ico?v=1" />
+  <script src="//unpkg.com/3d-force-graph"></script>
+  <script src="//unpkg.com/dat.gui"></script>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="https://ipfe.elguindi.xyz/meta/apple-touch-icon.png?v=1" />
+  <link rel="icon" type="image/png" sizes="32x32" href="https://ipfe.elguindi.xyz/meta/favicon-32x32.png?v=1" />
+  <link rel="icon" type="image/png" sizes="16x16" href="https://ipfe.elguindi.xyz/meta/favicon-16x16.png?v=1" />
+  <link rel="manifest" href="https://ipfe.elguindi.xyz/meta/site.webmanifest?v=1" />
+  <link rel="mask-icon" href="https://ipfe.elguindi.xyz/meta/safari-pinned-tab.svg?v=1" color="#5bbad5" />
+  <link rel="shortcut icon" href="https://ipfe.elguindi.xyz/meta/favicon.ico?v=1" />
   <meta name="apple-mobile-web-app-title" content="IPFE" />
   <meta name="application-name" content="IPFE" />
   <meta name="msapplication-TileColor" content="#000010" />
-  <meta name="msapplication-config" content="/meta/browserconfig.xml?v=1" />
+  <meta name="msapplication-config" content="https://ipfe.elguindi.xyz/meta/browserconfig.xml?v=1" />
   <meta name="theme-color" content="#000010" />
+
+  <meta property="og:title" content="IPFE: InterPlanetary File Explorer" />
+  <meta property="og:site_name" content="IPFE" />
+  <meta property="og:url" content="https://ipfe.elguindi.xyz" />
+  <meta property="og:type" content="website" />
+  <meta
+    property="og:description"
+    content="Explore the universe of distributed data in 3D and vizualize the connections between them."
+  />
+  <meta property="og:image" content="https://ipfe.elguindi.xyz/images/IPFE_logo_square.png" />
+  <meta property="og:image:secure_url" content="https://ipfe.elguindi.xyz/images/IPFE_logo_square.png" />
+  <meta property="og:image:width" content="1000" />
+  <meta property="og:image:height" content="1000" />
+  <meta property="og:image:alt" content="IPFE: InterPlanetary File Explorer" />
+  <meta property="og:image:type" content="image/png" />
+
   <title>IPFE: InterPlanetary File Explorer</title>
+  <meta
+    name="description"
+    content="Explore the universe of distributed data in 3D – vizualize the connections between them."
+  />
+
+  <link
+    rel="search"
+    type="application/opensearchdescription+xml"
+    href="/opensearch.xml"
+    title="IPFE: InterPlanetary File Explorer"
+  />
+
+  <meta name="robots" content="max-image-preview:large" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="IPFE: InterPlanetary File Explorer" />
+  <meta
+    name="twitter:description"
+    content="Explore the universe of distributed data in 3D – vizualize the connections between them."
+  />
+  <meta name="twitter:image" content="https://ipfe.elguindi.xyz/images/IPFE_banner.png" />
 
   <style>
     body {
       margin: 0;
+      background-color: #000010;
     }
 
     .container {
@@ -50,35 +73,40 @@
 
     .logo {
       position: absolute;
-      left: 30px;
-      bottom: 10px;
+      left: 20px;
+      bottom: 20px;
+      z-index: 999;
+      opacity: 0.5;
+      cursor: pointer;
+    }
+
+    .github {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
       z-index: 999;
       opacity: 0.5;
     }
   </style>
-
-  <script src="//unpkg.com/3d-force-graph"></script>
-  <script src="//unpkg.com/dat.gui"></script>
 </head>
 
 <body>
-  <img src="IPFE.png" alt="logo" width="150" height="150" class="logo" />
+  <button>
+    <img src="images/IPFE_logo.png" alt="logo" width="100" class="logo" />
+  </button>
+  <a href="https://github.com/youssefsoli/IPFE" target="_blank">
+    <img src="images/github_logo.png" alt="github" width="30" class="github" draggable="false" />
+  </a>
   <div id="3d-graph" style="width: 50%"></div>
 
   <script type="module">
     const nodeClicked = (node, event) => {
-      window
-        .open(`https://api.estuary.tech/gw/ipfs/${node.hash}`, '_blank')
-        .focus();
+      window.open(`https://api.estuary.tech/gw/ipfs/${node.hash}`, '_blank').focus();
     };
 
     function humanFileSize(size) {
       var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
-      return (
-        (size / Math.pow(1024, i)).toFixed(2) * 1 +
-        ' ' +
-        ['B', 'kB', 'MB', 'GB', 'TB'][i]
-      );
+      return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
     }
 
     const req = await fetch('graph_data.json');
@@ -119,9 +147,7 @@
       })
       .nodeLabel((node) => {
         let parts = node.name.split(', ');
-        const fileSize = humanFileSize(
-          parseInt(parts[parts.length - 2].split(': ')[1].split(' ')[0])
-        );
+        const fileSize = humanFileSize(parseInt(parts[parts.length - 2].split(': ')[1].split(' ')[0]));
         return `<section class="container">
             <div style="display: flex">
             <div class="one">
@@ -169,9 +195,7 @@
       let { nodes, links } = JSON.parse(stringData);
 
       const removeNode = (node) => {
-        links = links.filter(
-          (l) => l.source !== node.id && l.target !== node.id
-        ); // Remove links attached to node
+        links = links.filter((l) => l.source !== node.id && l.target !== node.id); // Remove links attached to node
         nodes = nodes.filter((n) => node.id != n.id); // Remove node
       };
 
@@ -188,5 +212,10 @@
       }
       Graph.graphData({ nodes, links });
     }
+
+    const shareButton = document.querySelector('.logo');
+    shareButton.addEventListener('click', async (event) => {
+      navigator.share({ url: 'https://ipfe.elguindi.xyz' }).catch(console.error);
+    });
   </script>
 </body>
