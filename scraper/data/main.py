@@ -38,9 +38,10 @@ for key in buckets.keys():
         keys.append(key)
 
 
+
 postings = []
 
-need = 2000 // len(keys)
+need = NUMFILES // len(keys)
 for key in keys:
     bucket = buckets[key]
     bucketLen = len(bucket)
@@ -48,7 +49,7 @@ for key in keys:
     if bucketLen - need - 1 > 0:
         start = randint(0, bucketLen - need - 1)
 
-    for i in range(start, start + need, 1):
+    for i in range(start, min(bucketLen, start + need), 1):
         postings.append(bucket[i].copy())
 
 for p in postings:
